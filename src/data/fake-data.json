@@ -1,0 +1,31 @@
+{
+  "petStatus": {
+    "health": "Good",
+    "activityLevel": "Normal",
+    "mood": "Happy"
+  },
+  "activityTracking": {
+    "stepsToday": 4231,
+    "playMinutes": 35,
+    "sleepHours": 8,
+    "comparison": "+12% compared to yesterday"
+  },
+  "feeding": {
+    "caloriesToday": 650,
+    "lastMealTime": "8:30 AM",
+    "notes": "Feeding schedule normal"
+  },
+  "healthAlerts": [
+    "No significant abnormal behavior detected",
+    "Slight drop in activity 2 days ago"
+  ],
+  "medicalTimeline": {
+    "nextVaccination": "2025-01-12",
+    "nextVetVisit": "2025-01-20",
+    "weightKg": 12.5
+  },
+  "aiSuggestions": [
+    "Increase playtime in the evening for optimal activity balance",
+    "Monitor hydration over the next 48 hours"
+  ]
+}
