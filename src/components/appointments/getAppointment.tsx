@@ -186,12 +186,11 @@ export default function UserAppointmentsPage() {
                         <p className="text-xs text-gray-400 pry-ff mt-0.5">{vetLabel} · {clinicName}</p>
                       </div>
 
-                      {/* Date & Time */}
-                      <div>
-                        <p className="text-sm font-semibold text-sec-clr sec-ff">{dayjs(a.date).format("DD MMM YYYY")}</p>
-                        <p className="text-xs text-gray-400 pry-ff mt-0.5">{a.time ?? '—'}</p>
-                      </div>
-
+{/* Date & Time — desktop */}
+<div>
+  <p className="text-sm font-semibold text-sec-clr sec-ff">{dayjs(a.date).format("DD MMM YYYY")}</p>
+  <p className="text-xs text-gray-400 pry-ff mt-0.5">{dayjs(a.date).format("hh:mm A")}</p>
+</div>
                       {/* Status */}
                       <span className={`inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1.5 rounded-lg sec-ff w-fit ${status.badge}`}>
                         <span className={`w-1.5 h-1.5 rounded-full ${status.dot}`} />
@@ -248,12 +247,13 @@ export default function UserAppointmentsPage() {
                         </div>
                         <p className="text-xs text-gray-600 sec-ff mt-0.5 truncate">{a.notes || '—'}</p>
                         <p className="text-xs text-gray-400 pry-ff">{vetLabel} · {clinicName}</p>
-                        <div className="flex items-center gap-1 mt-1.5">
-                          <Calendar size={11} className="text-gray-300" />
-                          <p className="text-xs text-gray-400 pry-ff">
-                            {dayjs(a.date).format("DD MMM YYYY")}{a.time ? ` · ${a.time}` : ''}
-                          </p>
-                        </div>
+{/* Date & Time — mobile */}
+<div className="flex items-center gap-1 mt-1.5">
+  <Calendar size={11} className="text-gray-300" />
+  <p className="text-xs text-gray-400 pry-ff">
+    {dayjs(a.date).format("DD MMM YYYY · hh:mm A")}
+  </p>
+</div>
                       </div>
                     </Link>
 

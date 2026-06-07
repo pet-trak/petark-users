@@ -7,7 +7,7 @@ import { getAppointmentById, Appointment } from '@/libs/api/appointment';
 import {
   Calendar, User, Heart, Clock, FileText, CheckCircle,
   XCircle, AlertCircle, ArrowLeft, Phone, Mail, MapPin,
-  Activity, Stethoscope, Bell, Scale, Venus, Mars,
+  Activity, Stethoscope, Bell, Scale, Venus,
   Building2, Star, ChevronRight, Syringe, Dna, Tag, CalendarDays
 } from 'lucide-react';
 import Image from 'next/image';
@@ -78,7 +78,7 @@ export default function AppointmentDetails() {
             <XCircle className="w-10 h-10 text-red-500" />
           </div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Appointment Not Found</h2>
-          <p className="text-gray-500 mb-8 text-sm leading-relaxed">The appointment you're looking for doesn't exist or has been removed.</p>
+          <p className="text-gray-500 mb-8 text-sm leading-relaxed">The appointment you&apos;re looking for doesn&apos;t exist or has been removed.</p>
           <button
             onClick={() => router.back()}
             className="px-8 py-3 bg-[#38E07B] text-white rounded-xl font-semibold hover:bg-[#2bc466] transition-all shadow-md"
@@ -142,13 +142,12 @@ export default function AppointmentDetails() {
         {/* ── Main Content Grid ── */}
         <div className="grid lg:grid-cols-5 gap-5">
 
-          {/* LEFT: Pet + Owner */}
+          {/* LEFT: Pet */}
           <div className="lg:col-span-2 space-y-5">
 
             {/* Pet Card */}
             {appointment.pet && (
               <div className="bg-white rounded-2xl shadow overflow-hidden">
-                {/* Pet Photo */}
                 <div className="relative h-52 bg-gradient-to-br from-[#38E07B] to-[#2bc466]">
                   {appointment.pet.photo ? (
                     <Image
@@ -174,7 +173,6 @@ export default function AppointmentDetails() {
                   </div>
                 </div>
 
-                {/* Pet Info Grid */}
                 <div className="p-4">
                   <div className="grid grid-cols-2 gap-2.5">
                     <InfoTile label="Species" value={capitalize(appointment.pet.species)} icon={<Dna className="w-3.5 h-3.5" />} />
@@ -188,52 +186,15 @@ export default function AppointmentDetails() {
                     )}
                   </div>
 
-                  <div>
-                    {appointment.pet.qrCode && (
-                      <div className="mt-2 bg-[#38E07B]/10 rounded-lg p-2 flex items-center justify-center border border-(--pry-clr)">
-                        <Image 
-                          src={appointment.pet.qrCode}
-                          alt={`${appointment.pet.name} QR Code`}
-                          width={150}
-                          height={150}
-                        />
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Owner Card */}
-            {appointment.owner && (
-              <div className="bg-white rounded-2xl shadow p-4">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 bg-gradient-to-br from-[#38E07B] to-[#2bc466] rounded-xl flex items-center justify-center shadow-sm">
-                    <User className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-400 font-medium uppercase tracking-wider">Pet Owner</p>
-                    <h3 className="text-base font-bold text-gray-900">{appointment.owner.fullname}</h3>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  {appointment.owner.email && (
-                    <ContactRow icon={<Mail className="w-3.5 h-3.5 text-[#38E07B]" />} value={appointment.owner.email} />
-                  )}
-                  {appointment.owner.phoneNumber && (
-                    <ContactRow icon={<Phone className="w-3.5 h-3.5 text-[#38E07B]" />} value={appointment.owner.phoneNumber} />
-                  )}
-                  {appointment.owner.address && (
-                    <ContactRow
-                      icon={<MapPin className="w-3.5 h-3.5 text-[#38E07B]" />}
-                      value={[
-                        appointment.owner.address.street,
-                        appointment.owner.address.city,
-                        appointment.owner.address.state,
-                        appointment.owner.address.country,
-                        appointment.owner.address.zipCode
-                      ].filter(Boolean).join(', ')}
-                    />
+                  {appointment.pet.qrCode && (
+                    <div className="mt-2 bg-[#38E07B]/10 rounded-lg p-2 flex items-center justify-center border border-(--pry-clr)">
+                      <Image
+                        src={appointment.pet.qrCode}
+                        alt={`${appointment.pet.name} QR Code`}
+                        width={150}
+                        height={150}
+                      />
+                    </div>
                   )}
                 </div>
               </div>
@@ -253,7 +214,7 @@ export default function AppointmentDetails() {
                 <p className="text-xs text-gray-500 font-medium mb-1">Date</p>
                 <p className="text-lg font-bold text-gray-900">{appointment.date ? formatDate(appointment.date) : 'N/A'}</p>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-3 mb-3">
                 <div className="bg-[#f0fbf5] rounded-xl p-3 flex items-center gap-3">
                   <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center shadow-sm">
                     <Clock className="w-4 h-4 text-[#38E07B]" />
@@ -273,6 +234,23 @@ export default function AppointmentDetails() {
                   </div>
                 </div>
               </div>
+              {/* Booked / Confirmed timestamps */}
+              <div className="grid grid-cols-2 gap-3">
+                {appointment.timeBooked && (
+                  <div className="bg-[#f0fbf5] rounded-xl p-3">
+                    <p className="text-xs text-gray-400 mb-0.5">Booked On</p>
+                    <p className="font-bold text-gray-800 text-xs">{formatDate(appointment.timeBooked)}</p>
+                    <p className="text-xs text-gray-500">{formatTime(appointment.timeBooked)}</p>
+                  </div>
+                )}
+                {appointment.timeConfirmed && (
+                  <div className="bg-[#f0fbf5] rounded-xl p-3">
+                    <p className="text-xs text-gray-400 mb-0.5">Confirmed On</p>
+                    <p className="font-bold text-gray-800 text-xs">{formatDate(appointment.timeConfirmed)}</p>
+                    <p className="text-xs text-gray-500">{formatTime(appointment.timeConfirmed)}</p>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Service / Type */}
@@ -289,7 +267,7 @@ export default function AppointmentDetails() {
               </div>
             )}
 
-            {/* Vet */}
+            {/* Vet — only render if assigned */}
             {appointment.vet && (
               <div className="bg-white rounded-2xl shadow p-5">
                 <div className="flex items-center gap-2 mb-3">
@@ -308,54 +286,69 @@ export default function AppointmentDetails() {
               </div>
             )}
 
-            {/* Clinic */}
-            {appointment.clinic && (
-              <div className="bg-white rounded-2xl shadow p-5">
-                <div className="flex items-center gap-2 mb-3">
-                  <Building2 className="w-4 h-4 text-[#38E07B]" />
-                  <h4 className="font-semibold text-gray-900 text-sm uppercase tracking-wider">Clinic Details</h4>
-                </div>
-                {appointment.clinic.clinicName && (
-                  <p className="font-bold text-gray-900 mb-2 text-base">{appointment.clinic.clinicName}</p>
-                )}
-                <div className="space-y-2">
-                  {appointment.clinic.email && (
-                    <ContactRow icon={<Mail className="w-3.5 h-3.5 text-[#38E07B]" />} value={appointment.clinic.email} />
-                  )}
-                  {appointment.clinic.phone && (
-                    <ContactRow icon={<Phone className="w-3.5 h-3.5 text-[#38E07B]" />} value={appointment.clinic.phone} />
-                  )}
-                  {appointment.clinic.address && (
-                    <ContactRow
-                      icon={<MapPin className="w-3.5 h-3.5 text-[#38E07B]" />}
-                      value={[
-                        appointment.clinic.address.street,
-                        appointment.clinic.address.city,
-                        appointment.clinic.address.state,
-                        appointment.clinic.address.country
-                      ].filter(Boolean).join(', ')}
-                    />
-                  )}
-                  {(appointment.clinic.startingTime || appointment.clinic.closingTime) && (
-                    <ContactRow
-                      icon={<Clock className="w-3.5 h-3.5 text-[#38E07B]" />}
-                      value={`${appointment.clinic.startingTime ?? ''} – ${appointment.clinic.closingTime ?? ''}`}
-                    />
-                  )}
-                </div>
-              </div>
-            )}
+{/* Clinic */}
+{appointment.clinic && (
+  <div className="bg-white rounded-2xl shadow p-5">
+    <div className="flex items-center gap-2 mb-3">
+      <Building2 className="w-4 h-4 text-[#38E07B]" />
+      <h4 className="font-semibold text-gray-900 text-sm uppercase tracking-wider">Clinic Details</h4>
+    </div>
+    {appointment.clinic.clinicName && (
+      <p className="font-bold text-gray-900 mb-2 text-base">{appointment.clinic.clinicName}</p>
+    )}
+    <div className="space-y-2">
+      {appointment.clinic.email && (
+        <ContactRow icon={<Mail className="w-3.5 h-3.5 text-[#38E07B]" />} value={appointment.clinic.email} />
+      )}
+      {appointment.clinic.phoneNumber && (
+        <ContactRow icon={<Phone className="w-3.5 h-3.5 text-[#38E07B]" />} value={appointment.clinic.phoneNumber} />
+      )}
+      {appointment.clinic.address && (
+        <ContactRow
+          icon={<MapPin className="w-3.5 h-3.5 text-[#38E07B]" />}
+          value={[
+            appointment.clinic.address.street,
+            appointment.clinic.address.city,
+            appointment.clinic.address.state,
+            appointment.clinic.address.country
+          ].filter(Boolean).join(', ')}
+        />
+      )}
+      {(appointment.clinic.startingTime || appointment.clinic.closingTime) && (
+        <ContactRow
+          icon={<Clock className="w-3.5 h-3.5 text-[#38E07B]" />}
+          value={`${appointment.clinic.startingTime ?? ''} – ${appointment.clinic.closingTime ?? ''}`}
+        />
+      )}
+      {appointment.clinic.daysOpen && appointment.clinic.daysOpen.length > 0 && (
+        <div className="bg-[#f0fbf5] rounded-xl px-3 py-2.5">
+          <p className="text-xs text-gray-400 mb-1.5 font-medium">Open Days</p>
+          <div className="flex flex-wrap gap-1.5">
+            {appointment.clinic.daysOpen.map((day) => (
+              <span
+                key={day}
+                className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-[#38E07B]/15 text-[#1a6b47]"
+              >
+                {day}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  </div>
+)}
 
             {/* Notes */}
             {appointment.notes && (
-              <div className="rounded-2xl shadow p-5 border-2 border-amber-100 bg-gradient-to-br from-amber-50 to-orange-50">
+              <div className="rounded-2xl shadow p-5 border-2 border-amber-100 bg-linear-to-br from-amber-50 to-orange-50">
                 <div className="flex items-start gap-3">
-                  <div className="w-9 h-9 bg-gradient-to-br from-amber-400 to-orange-500 rounded-xl flex items-center justify-center shadow-sm shrink-0 mt-0.5">
+                  <div className="w-9 h-9 bg-linear-to-br from-amber-400 to-orange-500 rounded-xl flex items-center justify-center shadow-sm shrink-0 mt-0.5">
                     <FileText className="w-4 h-4 text-white" />
                   </div>
                   <div>
                     <h4 className="font-bold text-gray-900 mb-1 text-sm">Pre-Visit Notes</h4>
-                    <p className="text-gray-700 text-sm leading-relaxed italic">"{appointment.notes}"</p>
+                    <p className="text-gray-700 text-sm leading-relaxed italic">&quot;{appointment.notes}&quot;</p>
                   </div>
                 </div>
               </div>

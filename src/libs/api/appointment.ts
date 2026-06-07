@@ -14,26 +14,20 @@ export type UserAddress = {
 
 export type Appointment = {
   _id: string;
+  userId: string;
   type?: string;
-  time: string;
   date: string;
   status: string;
   notes?: string;
-
-  owner: {
-    _id: string;
-    fullname: string;
-    email: string;
-    phoneNumber?: string;
-    address?: UserAddress;
-  };
+  timeBooked?: string;
+  timeConfirmed?: string;
 
   pet: {
     _id: string;
     name: string;
     species: string;
     breed: string;
-    age: number;
+    age: number | string;
     weight?: number;
     gender?: string;
     photo?: string;
@@ -44,8 +38,9 @@ export type Appointment = {
     _id: string;
     clinicName: string;
     email: string;
-    phone: string;
+    phoneNumber?: string;       // was phone
     address?: UserAddress;
+    daysOpen?: string[];
     startingTime?: string;
     closingTime?: string;
   };
@@ -53,11 +48,16 @@ export type Appointment = {
   vet?: {
     _id: string;
     fullname: string;
-    email: string;
-    phone: string;
+    email?: string;
   } | null;
 
-  confirmedBy?: string | null;
+  owner?: {                     // optional — not in current response
+    _id: string;
+    fullname: string;
+    email: string;
+    phoneNumber?: string;
+    address?: UserAddress;
+  } | null;
 };
 
 
@@ -178,52 +178,23 @@ export async function getMyPets() {
   return res.data.data.pets;
 }
 
-/* ================= USER APPOINTMENTS ================= */
 export async function getAppointments(status?: string): Promise<Appointment[]> {
   try {
-    // Get token from localStorage
-    const token = localStorage.getItem("token");
-    
-    if (!token) {
-      throw new Error("No authentication token found. Please login again.");
-    }
-    
-    console.log("Fetching appointments with token:", token.substring(0, 20) + "...");
-    
-    const res = await api.get<{
-      status: string;
-      count: number;
-      appointments: Appointment[];
-    }>("/appointment/users", {
+    const res = await api.get("/appointment/users", {
       params: status ? { status } : undefined,
     });
-    
-    console.log("Appointments response:", res.data);
+
     return res.data.appointments;
   } catch (err: unknown) {
-    console.error("Full error in getAppointments:", err);
-    
     let msg = "Failed to fetch appointments";
     if (err instanceof AxiosError) {
-      // Log the full error for debugging
-      console.error("Response status:", err.response?.status);
-      console.error("Response data:", err.response?.data);
-      console.error("Request URL:", err.config?.url);
-      
-      if (err.response?.status === 401) {
-        msg = "Session expired. Please login again.";
-        // Optionally redirect to login
-        // window.location.href = '/login';
-      } else if (err.response?.status === 403) {
-        msg = "You don't have permission to view appointments. Are you logged in as an owner?";
-      } else {
-        msg = err.response?.data?.message ?? msg;
-      }
+      if (err.response?.status === 401) msg = "Session expired. Please login again.";
+      else if (err.response?.status === 403) msg = "You don't have permission to view appointments.";
+      else msg = err.response?.data?.message ?? msg;
     }
     throw new Error(msg);
   }
 }
-
 /* ================= SINGLE APPOINTMENT ================= */
 
 export const getAppointmentById = async (
