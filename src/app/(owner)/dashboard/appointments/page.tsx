@@ -1,8 +1,7 @@
 // app/dashboard/page.tsx
 'use client';
 
-import NearbyClinicsPage from "@/components/nearby-clinics";
-import NearbyClinic from "../nearby-clinic/page";
+import NearbyClinicsPage from "@/components/nearby-clinics";;
 
 export default function Dashboard() {
     return (

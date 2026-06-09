@@ -65,8 +65,8 @@ export default function LoginComp() {
     <>
       <Toaster position="top-center" />
 
-      <main className="min-h-screen flex items-center justify-center pry-ff" style={{ backgroundColor: 'var(--bg-clr)' }}>
-        <div className="w-full max-w-[400px] bg--pry-clr rounded-2xl shadow-lg p-8 mx-4">
+      <main className="min-h-screen flex items-center justify-center pry-ff bg-bg-clr">
+        <div className="w-full max-w-[400px] bg--pry-clr rounded-2xl shadow-lg p-8 mx-4 bg-pry-clr">
 
           {/* Heading */}
           <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--sec-clr)' }}>

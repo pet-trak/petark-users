@@ -19,6 +19,7 @@ export interface Pet {
   weight?: number | null;
   photo?: string;
   qrCode?: string;
+  createdAt: string;
 }
 
 /* ---- Address ---- */

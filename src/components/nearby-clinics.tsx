@@ -26,6 +26,36 @@ interface Address {
     zipCode?: string;
 }
 
+/* ── NEW: typed slot shape pulled from ClinicScheduleDay ── */
+interface TimeSlot {
+    time: string;
+    available: boolean;
+}
+
+/* ── NEW: DesktopBookingPanel props ── */
+interface DesktopBookingPanelProps {
+    selectedClinic: Clinic | null;
+    scheduleLoading: boolean;
+    filteredSchedule: (ClinicScheduleDay & { isOpen: boolean })[];
+    selectedDate: string;
+    setSelectedDate: (date: string) => void;
+    selectedTime: string;
+    setSelectedTime: (time: string) => void;
+    selectedPetId: string;
+    setSelectedPetId: (id: string) => void;
+    selectedPetName: string | undefined;
+    pets: Pet[];
+    morningSlots: TimeSlot[];
+    afternoonSlots: TimeSlot[];
+    selectedDay: (ClinicScheduleDay & { isOpen: boolean }) | undefined;
+    getMonthHeader: () => string;
+    scroll: (dir: 'left' | 'right') => void;
+    dateRef: React.RefObject<HTMLDivElement>;
+    handleBook: () => Promise<void>;
+    bookingLoading: boolean;
+    timeSlotClass: (time: string, available: boolean) => string;
+}
+
 // Converts "14:30" → "2:30 PM", "09:00" → "9:00 AM"
 function to12Hour(time24: string): string {
     const [h, m] = time24.split(':').map(Number);
@@ -100,8 +130,9 @@ export default function NearbyClinicsPage() {
                 ]);
                 setSchedule(sched);
                 setPets(profile.pets ?? []);
-            } catch (err: any) {
-                toast.error(err.message || "Failed to load schedule");
+            } catch (err: unknown) {
+                const message = err instanceof Error ? err.message : 'Failed to load schedule';
+                toast.error(message);
             } finally {
                 setScheduleLoading(false);
             }
@@ -136,7 +167,6 @@ export default function NearbyClinicsPage() {
         setBookingLoading(true);
         try {
             const query: BookAppointmentQuery = { clinicId: selectedClinic!._id };
-            // Slots come back as "10:30" (24h) — backend expects "10:30 AM" (12h)
             const time12 = to12Hour(selectedTime);
             await bookAppointments({ petId: selectedPetId, date: selectedDate, time: time12 }, query);
             toast.success(`Appointment booked for ${time12}`);
@@ -152,7 +182,7 @@ export default function NearbyClinicsPage() {
             }));
             setSelectedTime('');
             setSelectedDate('');
-        } catch (err: any) {
+        } catch (err: unknown) {
             if (axios.isAxiosError(err)) {
                 toast.error(err.response?.data?.message || (typeof err.response?.data === 'string' ? err.response.data : 'Failed to book appointment'));
             } else {
@@ -460,7 +490,7 @@ export default function NearbyClinicsPage() {
                                         <Phone className="w-4 h-4 text-(--acc-clr) flex-shrink-0" />
                                         <div className="min-w-0">
                                             <p className="text-[10px] font-bold text-(--acc-clr) uppercase sec-ff">Call</p>
-                                            <p className="text-xs font-bold text-(--sec-clr) sec-ff truncate">{selectedClinic?.phone ?? '—'}</p>
+                                            <p className="text-xs font-bold text-(--sec-clr) sec-ff truncate">{selectedClinic?.phoneNumber ?? '—'}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -495,7 +525,7 @@ function DesktopBookingPanel({
     morningSlots, afternoonSlots, selectedDay,
     getMonthHeader, scroll, dateRef, handleBook,
     bookingLoading, timeSlotClass
-}: any) {
+}: DesktopBookingPanelProps) {
     if (!selectedClinic) {
         return (
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center justify-center py-24 px-6">
@@ -578,11 +608,11 @@ function DesktopBookingPanel({
                             </div>
                         </div>
                         <div ref={dateRef} className="flex gap-2 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none' }}>
-                            {filteredSchedule.map((day: any) => {
+                            {filteredSchedule.map((day) => {
                                 const dateObj = new Date(day.date);
                                 const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'short' });
                                 const dayNum = dateObj.getDate();
-                                const hasSlots = day.slots.some((s: any) => s.available);
+                                const hasSlots = day.slots.some((s) => s.available);
                                 const isActive = selectedDate === day.date;
                                 return (
                                     <button key={day.date} onClick={() => hasSlots && setSelectedDate(day.date)} disabled={!hasSlots}
@@ -607,7 +637,7 @@ function DesktopBookingPanel({
                                 <div className="mb-4">
                                     <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-2 pry-ff">Morning</p>
                                     <div className="grid grid-cols-4 xl:grid-cols-5 gap-2">
-                                        {morningSlots.map((slot: any) => (
+                                        {morningSlots.map((slot) => (
                                             <button key={slot.time} onClick={() => slot.available && setSelectedTime(slot.time)} disabled={!slot.available}
                                                 className={`py-2.5 rounded-xl text-sm font-semibold transition-all duration-150 sec-ff ${timeSlotClass(slot.time, slot.available)}`}>
                                                 {to12Hour(slot.time)}
@@ -620,7 +650,7 @@ function DesktopBookingPanel({
                                 <div>
                                     <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-2 pry-ff">Afternoon</p>
                                     <div className="grid grid-cols-4 xl:grid-cols-5 gap-2">
-                                        {afternoonSlots.map((slot: any) => (
+                                        {afternoonSlots.map((slot) => (
                                             <button key={slot.time} onClick={() => slot.available && setSelectedTime(slot.time)} disabled={!slot.available}
                                                 className={`py-2.5 rounded-xl text-sm font-semibold transition-all duration-150 sec-ff ${timeSlotClass(slot.time, slot.available)}`}>
                                                 {to12Hour(slot.time)}
@@ -629,7 +659,7 @@ function DesktopBookingPanel({
                                     </div>
                                 </div>
                             )}
-                            {selectedDay.slots.every((s: any) => !s.available) && (
+                            {selectedDay.slots.every((s) => !s.available) && (
                                 <p className="text-gray-400 text-sm text-center py-4 sec-ff">No available time slots for this date.</p>
                             )}
                         </div>
@@ -670,7 +700,7 @@ function DesktopBookingPanel({
                             <div className="min-w-0">
                                 <p className="text-[10px] font-semibold text-(--acc-clr) uppercase tracking-wide sec-ff">Need Help?</p>
                                 <p className="text-sm font-bold text-(--sec-clr) sec-ff">Call Clinic</p>
-                                <p className="text-xs text-gray-500 pry-ff truncate">{selectedClinic.phone ?? '—'}</p>
+                                <p className="text-xs text-gray-500 pry-ff truncate">{selectedClinic.phoneNumber ?? '—'}</p>
                             </div>
                         </div>
                     </div>
