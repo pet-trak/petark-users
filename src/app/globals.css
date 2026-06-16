@@ -59,3 +59,69 @@ body {
 .sec-ff {
   font-family: var(--sec-ff);
 }
+
+/* react-phone-number-input overrides */
+.PhoneInput {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 0.5rem;
+}
+
+.PhoneInputCountry {
+  display: flex;
+  align-items: center;
+  position: relative;
+  flex-shrink: 0;
+  border-right: 1px solid #e5e7eb;
+  padding-right: 0.5rem;
+  margin-right: 0.25rem;
+}
+
+.PhoneInputCountrySelect {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+
+.PhoneInputCountrySelectArrow {
+  display: none;
+}
+
+.PhoneInputCountryIcon {
+  width: 1.5rem;
+  height: auto;
+  display: block;
+}
+
+.PhoneInputCountryIcon--border {
+  box-shadow: none;
+  background: none;
+}
+
+.PhoneInputCountryIconImg {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 2px;
+}
+
+.PhoneInputInput {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 0.875rem;
+  color: var(--sec-clr);
+  padding: 0.75rem 0;
+  min-width: 0;
+}
+
+.PhoneInputInput::placeholder {
+  color: #9ca3af;
+}

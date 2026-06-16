@@ -1,89 +1,78 @@
 "use client";
 
+import { useState } from "react";
+import { registerOwner } from "@/libs/api/auth";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useState } from "react";
-import { Building2, User } from "lucide-react";
+import { Loader2, Eye, EyeOff } from "lucide-react";
+import PhoneInput from "react-phone-number-input";
 
 export default function RegisterComp() {
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState<string>("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const router = useRouter();
-  const [msgIndex, setMsgIndex] = useState(0);
-  const [selected, setSelected] = useState<string | null>(null);
 
-  const messages = [
-    "A unified system for veterinary clinics and pet owners.",
-    "Track vaccinations, treatments, and appointments in one place.",
-    "Built for modern clinics and responsible pet owners.",
-  ];
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setMsgIndex((prev) => (prev + 1) % messages.length);
-    }, 3500);
-    return () => clearInterval(interval);
-  }, []);
-
-  const roles = [
-    {
-      name: "Veterinary Clinic",
-      route: "/signup/clinic",
-      description: "Manage appointments, medical records, and clinic staff.",
-      icon: <Building2 size={20} />,
-    },
-    {
-      name: "Pet Owner",
-      route: "/signup/pet-owner",
-      description: "Book visits, track vaccinations, and monitor pet health.",
-      icon: <User size={20} />,
-    },
-  ];
+    try {
+      await registerOwner({ fullname: fullName, email, phoneNumber, password });
+      router.push("/login");
+    } catch (err: unknown) {
+      if (err instanceof Error) setError(err.message);
+      else setError("Registration failed");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <main
       className="min-h-screen flex items-center justify-center pry-ff p-4"
       style={{ backgroundColor: "var(--bg-clr)" }}
     >
-      <div className="w-full max-w-4xl flex rounded-2xl shadow-xl overflow-hidden bg-white">
+      <div className="w-full max-w-4xl flex rounded-2xl shadow-xl overflow-hidden bg-pry-clr">
 
         {/* ── Left: Branding (desktop only) ── */}
         <section
-          className="hidden md:flex w-[340px] flex-shrink-0 flex-col justify-between p-10 relative overflow-hidden"
+          className="hidden md:flex w-[340px] shrink-0 flex-col justify-between p-6 relative overflow-hidden"
           style={{ backgroundColor: "var(--acc-clr)" }}
         >
-          {/* decorative circles */}
-          <div className="absolute -top-16 -left-16 w-64 h-64 rounded-full opacity-10 bg-white" />
-          <div className="absolute -bottom-16 -right-16 w-64 h-64 rounded-full opacity-10 bg-white" />
+          <div className="absolute -top-16 -left-16 w-64 h-64 rounded-full opacity-10 bg-pry-clr" />
+          <div className="absolute -bottom-16 -right-16 w-64 h-64 rounded-full opacity-10 bg-pry-clr" />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 rounded-full opacity-5 bg-white" />
 
           <div className="relative z-10 flex flex-col gap-6">
             <Link href="/">
               <Image
-                src="/official_logo_remove.png"
-                alt="PetTrak Logo"
-                width={200}
-                height={200}
-                className="h-9 w-auto object-contain"
+                src="/petark_logo-remove.png"
+                alt="PetArk Logo"
+                width={300}
+                height={300}
+                className="h-20 w-auto object-contain"
               />
             </Link>
 
             <div>
-              <p className="text-white text-2xl font-bold leading-snug mt-6">
+              <p className="text-pry-clr text-2xl font-bold leading-snug">
                 Simplifying care for<br />every animal.
               </p>
-              <p
-                key={msgIndex}
-                className="text-white/80 text-sm mt-4 leading-relaxed transition-opacity duration-700"
-              >
-                {messages[msgIndex]}
+              <p className="text-pry-clr/80 text-sm mt-2 leading-relaxed">
+                Manage your pet&apos;s health and happiness, all in one place.
               </p>
             </div>
           </div>
 
-          {/* bottom */}
           <div className="relative z-10">
             <div className="flex items-center gap-2 mb-3">
-              {/* avatar stack */}
               {[1, 2, 3].map((i) => (
                 <div
                   key={i}
@@ -91,22 +80,22 @@ export default function RegisterComp() {
                 />
               ))}
             </div>
-            <p className="text-white/70 text-xs">Trusted by over 3,000 professionals</p>
+            <p className="text-pry-clr/70 text-xs">Trusted by over 3,000 pet owners</p>
           </div>
         </section>
 
         {/* ── Right: Form ── */}
-        <section className="flex-1 flex flex-col justify-center p-8 md:p-12">
+        <section className="flex-1 flex flex-col justify-start md:justify-center p-8 md:p-12">
 
           {/* mobile logo */}
-          <div className="flex md:hidden justify-center mb-8">
+          <div className="flex md:hidden justify-center mb-3">
             <Link href="/">
               <Image
-                src="/official_logo_remove.png"
-                alt="PetTrak Logo"
-                width={160}
-                height={160}
-                className="h-8 w-auto object-contain"
+                src="/white_petark_logo-remove.png"
+                alt="PetArk Logo"
+                width={800}
+                height={700}
+                className="h-24 w-auto object-contain"
               />
             </Link>
           </div>
@@ -115,74 +104,118 @@ export default function RegisterComp() {
             Create Your Account
           </h1>
           <p className="text-sm mb-8" style={{ color: "var(--sec-clr)", opacity: 0.6 }}>
-            Choose how you&apos;ll be using the platform to get started.
+            Please enter your details to get started.
           </p>
 
-          {/* Role cards */}
-          <div className="flex flex-col gap-4 w-full">
-            {roles.map((role) => {
-              const isSelected = selected === role.name;
-              return (
-                <button
-                  key={role.name}
-                  onClick={() => setSelected(role.name)}
-                  className="w-full flex items-start gap-4 border rounded-xl p-5 text-left transition-all duration-200 cursor-pointer active:scale-[0.98]"
-                  style={{
-                    borderColor: isSelected ? "var(--acc-clr)" : "#e5e7eb",
-                    backgroundColor: isSelected ? "var(--bg-clr)" : "white",
-                    boxShadow: isSelected ? "0 0 0 1px var(--acc-clr)" : "none",
-                  }}
-                >
-                  {/* icon box */}
-                  <div
-                    className="flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center mt-0.5"
-                    style={{
-                      backgroundColor: isSelected ? "var(--acc-clr)" : "#f3f4f6",
-                      color: isSelected ? "white" : "var(--sec-clr)",
-                    }}
-                  >
-                    {role.icon}
-                  </div>
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-full">
 
-                  <div>
-                    <p className="font-semibold text-sm" style={{ color: "var(--sec-clr)" }}>
-                      {role.name}
-                    </p>
-                    <p className="text-xs mt-0.5" style={{ color: "var(--sec-clr)", opacity: 0.6 }}>
-                      {role.description}
-                    </p>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
+            {/* Full name */}
+            <input
+              type="text"
+              placeholder="Full name"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              required
+              className="p-3 border rounded-lg text-sm outline-none bg-gray-50"
+              style={{ borderColor: "#e5e7eb", color: "var(--sec-clr)" }}
+              onFocus={(e) => (e.currentTarget.style.borderColor = "var(--acc-clr)")}
+              onBlur={(e) => (e.currentTarget.style.borderColor = "#e5e7eb")}
+            />
 
-          {/* Continue button */}
-          <button
-            disabled={!selected}
-            onClick={() => {
-              const role = roles.find((r) => r.name === selected);
-              if (role) router.push(role.route);
-            }}
-            className="mt-6 w-full py-3 rounded-lg text-white font-semibold text-sm transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
-            style={{ backgroundColor: "var(--acc-clr)" }}
-            onMouseEnter={(e) => { if (selected) e.currentTarget.style.filter = "brightness(1.1)"; }}
-            onMouseLeave={(e) => (e.currentTarget.style.filter = "brightness(1)")}
-          >
-            Continue to Registration
-          </button>
+            {/* Email */}
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="p-3 border rounded-lg text-sm outline-none bg-gray-50"
+              style={{ borderColor: "#e5e7eb", color: "var(--sec-clr)" }}
+              onFocus={(e) => (e.currentTarget.style.borderColor = "var(--acc-clr)")}
+              onBlur={(e) => (e.currentTarget.style.borderColor = "#e5e7eb")}
+            />
 
-          {/* Login link */}
-          <p className="text-sm text-center mt-6" style={{ color: "var(--sec-clr)", opacity: 0.7 }}>
-            Already have an account?{" "}
-            <Link
-              href="/login"
-              className="font-semibold hover:underline underline-offset-4"
-              style={{ color: "var(--acc-clr)", opacity: 1 }}
+            {/* Phone with country selector */}
+            <div
+              className="phone-container flex items-center border rounded-lg bg-gray-50 px-3"
+              style={{ borderColor: "#e5e7eb" }}
             >
-              Log in
-            </Link>
-          </p>
+              <PhoneInput
+                international
+                defaultCountry="NG"
+                value={phoneNumber}
+                onChange={(val) => setPhoneNumber(val ?? "")}
+                className="w-full text-sm outline-none bg-transparent"
+                style={{ color: "var(--sec-clr)" }}
+                onFocus={(e: React.FocusEvent<HTMLInputElement>) => {
+                  const parent = e.currentTarget.closest(".phone-container") as HTMLElement;
+                  if (parent) parent.style.borderColor = "var(--acc-clr)";
+                }}
+                onBlur={(e: React.FocusEvent<HTMLInputElement>) => {
+                  const parent = e.currentTarget.closest(".phone-container") as HTMLElement;
+                  if (parent) parent.style.borderColor = "#e5e7eb";
+                }}
+              />
+            </div>
+
+            {/* Password with eye toggle */}
+            <div
+              className="flex items-center border rounded-lg bg-gray-50 px-3"
+              style={{ borderColor: "#e5e7eb" }}
+            >
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="flex-1 py-3 text-sm outline-none bg-transparent"
+                style={{ color: "var(--sec-clr)" }}
+                onFocus={(e) => {
+                  const parent = e.currentTarget.parentElement as HTMLElement;
+                  if (parent) parent.style.borderColor = "var(--acc-clr)";
+                }}
+                onBlur={(e) => {
+                  const parent = e.currentTarget.parentElement as HTMLElement;
+                  if (parent) parent.style.borderColor = "#e5e7eb";
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((p) => !p)}
+                className="ml-2 text-gray-400 hover:text-gray-600 transition-colors"
+                tabIndex={-1}
+              >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
+
+            {error && (
+              <p className="text-red-500 text-xs text-center">{error}</p>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="mt-2 w-full py-3 rounded-lg text-pry-clr font-semibold text-sm transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer"
+              style={{ backgroundColor: "var(--acc-clr)" }}
+              onMouseEnter={(e) => { if (!loading) e.currentTarget.style.filter = "brightness(1.1)"; }}
+              onMouseLeave={(e) => (e.currentTarget.style.filter = "brightness(1)")}
+            >
+              {loading ? <Loader2 className="animate-spin" /> : "Sign up"}
+            </button>
+
+            <p className="text-sm text-center mt-2" style={{ color: "var(--sec-clr)", opacity: 0.7 }}>
+              Already have an account?{" "}
+              <Link
+                href="/login"
+                className="font-semibold hover:underline underline-offset-4"
+                style={{ color: "var(--acc-clr)", opacity: 1 }}
+              >
+                Log in
+              </Link>
+            </p>
+          </form>
         </section>
       </div>
     </main>
