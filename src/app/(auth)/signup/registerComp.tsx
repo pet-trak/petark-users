@@ -14,6 +14,7 @@ export default function RegisterComp() {
   const [phoneNumber, setPhoneNumber] = useState<string>("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
@@ -190,16 +191,52 @@ export default function RegisterComp() {
               </button>
             </div>
 
+            {/* Terms & Conditions checkbox */}
+            <label className="flex items-start gap-3 cursor-pointer group">
+              <div className="relative mt-0.5 shrink-0">
+                <input
+                  type="checkbox"
+                  checked={agreedToTerms}
+                  onChange={(e) => setAgreedToTerms(e.target.checked)}
+                  className="sr-only"
+                />
+                <div
+                  className="w-4 h-4 rounded border-2 flex items-center justify-center transition-all"
+                  style={{
+                    borderColor: agreedToTerms ? "var(--acc-clr)" : "#d1d5db",
+                    backgroundColor: agreedToTerms ? "var(--acc-clr)" : "transparent",
+                  }}
+                >
+                  {agreedToTerms && (
+                    <svg width="9" height="7" viewBox="0 0 9 7" fill="none">
+                      <path d="M1 3.5L3.5 6L8 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  )}
+                </div>
+              </div>
+              <span className="text-xs leading-relaxed" style={{ color: "var(--sec-clr)", opacity: 0.7 }}>
+                I have read and agree to PetArk&apos;s{" "}
+                <Link
+                  href="/terms"
+                  target="_blank"
+                  className="font-semibold underline underline-offset-2 hover:opacity-80 transition-opacity"
+                  style={{ color: "var(--acc-clr)", opacity: 1 }}
+                >
+                  Terms of Service & Privacy Policy
+                </Link>
+              </span>
+            </label>
+
             {error && (
               <p className="text-red-500 text-xs text-center">{error}</p>
             )}
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || !agreedToTerms}
               className="mt-2 w-full py-3 rounded-lg text-pry-clr font-semibold text-sm transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer"
               style={{ backgroundColor: "var(--acc-clr)" }}
-              onMouseEnter={(e) => { if (!loading) e.currentTarget.style.filter = "brightness(1.1)"; }}
+              onMouseEnter={(e) => { if (!loading && agreedToTerms) e.currentTarget.style.filter = "brightness(1.1)"; }}
               onMouseLeave={(e) => (e.currentTarget.style.filter = "brightness(1)")}
             >
               {loading ? <Loader2 className="animate-spin" /> : "Sign up"}
