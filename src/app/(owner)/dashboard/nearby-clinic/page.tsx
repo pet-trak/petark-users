@@ -1,14 +1,16 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { fetchClinics, Clinic } from '@/libs/api/nearbyClinic';
+import { fetchClinics, Clinic, Service } from '@/libs/api/nearbyClinic';
 import Spinner from '@/components/ui/spinner';
 import { MapPin, Clock, Stethoscope, ArrowRight } from 'lucide-react';
 import FilterClinic from './filter-clinic';
 import Link from 'next/link';
 
-function formatServiceLabel(service: string): string {
-    return service
+function formatServiceLabel(service: Service | string): string {
+    // Get the service name whether it's an object or string
+    const serviceName = typeof service === 'string' ? service : service.name;
+    return serviceName
         .replace(/([A-Z])/g, ' $1')
         .replace(/^./, (s) => s.toUpperCase())
         .trim();
@@ -81,16 +83,27 @@ export default function NearbyClinicsPage() {
 
                                     <div className="mt-2 flex flex-wrap gap-2">
                                         {clinic.servicesProvided.length > 0 ? (
-                                            clinic.servicesProvided.map((service, idx) => (
-                                                <span
-                                                    key={idx}
-                                                    style={{ backgroundColor: '#dcfce7', color: '#15803d' }}
-                                                    className="text-xs px-3 py-1 rounded-full font-medium flex items-center gap-1"
-                                                >
-                                                    <Stethoscope size={12} />
-                                                    {formatServiceLabel(service)}
-                                                </span>
-                                            ))
+                                            clinic.servicesProvided.map((service, idx) => {
+                                                // Get service name and price
+                                                const serviceName = typeof service === 'string' ? service : service.name;
+                                                const servicePrice = typeof service === 'object' && service.price ? service.price : null;
+                                                
+                                                return (
+                                                    <span
+                                                        key={idx}
+                                                        style={{ backgroundColor: '#dcfce7', color: '#15803d' }}
+                                                        className="text-xs px-3 py-1 rounded-full font-medium flex items-center gap-1"
+                                                    >
+                                                        <Stethoscope size={12} />
+                                                        {formatServiceLabel(service)}
+                                                        {servicePrice !== null && (
+                                                            <span className="text-[9px] text-green-700 ml-0.5">
+                                                                ₦{servicePrice.toLocaleString()}
+                                                            </span>
+                                                        )}
+                                                    </span>
+                                                );
+                                            })
                                         ) : (
                                             <span className="text-xs text-gray-400 italic">No services listed</span>
                                         )}
