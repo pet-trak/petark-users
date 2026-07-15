@@ -26,7 +26,7 @@ export default function RegisterComp() {
 
     try {
       await registerOwner({ fullname: fullName, email, phoneNumber, password });
-      router.push("/login");
+      router.push(`/confirm-email?email=${encodeURIComponent(email)}`);
     } catch (err: unknown) {
       if (err instanceof Error) setError(err.message);
       else setError("Registration failed");

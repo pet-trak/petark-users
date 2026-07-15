@@ -70,3 +70,42 @@ export async function registerOwner(payload: RegisterOwnerPayload): Promise<Basi
     throw new Error(msg);
   }
 }
+
+interface VerifyOTPPayload {
+  email: string;
+  otp: string;
+}
+
+interface ResendOTPPayload {
+  email: string;
+}
+
+/* ========== VERIFY EMAIL OTP ========== */
+export async function verifyEmailOTP(payload: VerifyOTPPayload): Promise<BasicResponse> {
+  try {
+    const response = await axios.post<BasicResponse>(
+      `${process.env.NEXT_PUBLIC_API_URL}/auth/owner/verify-email`,
+      payload
+    );
+    return response.data;
+  } catch (error: unknown) {
+    let msg = "OTP verification failed.";
+    if (error instanceof AxiosError) msg = error.response?.data?.message ?? msg;
+    throw new Error(msg);
+  }
+}
+
+/* ========== RESEND EMAIL OTP ========== */
+export async function resendEmailOTP(payload: ResendOTPPayload): Promise<BasicResponse> {
+  try {
+    const response = await axios.post<BasicResponse>(
+      `${process.env.NEXT_PUBLIC_API_URL}/auth/owner/resend-otp`,
+      payload
+    );
+    return response.data;
+  } catch (error: unknown) {
+    let msg = "Failed to resend OTP.";
+    if (error instanceof AxiosError) msg = error.response?.data?.message ?? msg;
+    throw new Error(msg);
+  }
+}
