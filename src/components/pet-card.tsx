@@ -2,7 +2,8 @@
 
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
-import { getMyPets, Pet } from '@/libs/api/pet';
+import { getUserProfile } from '@/libs/api/user';
+import type { Pet } from '@/libs/api/user';
 import { Loader2, PawPrint, Weight, Venus, Mars, CircleHelp } from 'lucide-react';
 
 function GenderIcon({ gender }: Readonly<{ gender?: string }>) {
@@ -83,8 +84,8 @@ export default function MyPets() {
   const [error, setError]     = useState('');
 
   useEffect(() => {
-    getMyPets()
-      .then((res) => setPets(res.data.pets))
+    getUserProfile()
+      .then((profile) => setPets(profile.pets ?? []))
       .catch(() => setError('Failed to load pets'))
       .finally(() => setLoading(false));
   }, []);
@@ -113,7 +114,7 @@ export default function MyPets() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {pets.map((pet) => (
-        <PetCard key={pet._id} pet={pet} />
+        <PetCard key={pet.id} pet={pet} />
       ))}
     </div>
   );

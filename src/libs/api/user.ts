@@ -103,11 +103,27 @@ export async function createPet(
     });
     if (file) formData.append("photo", file);
 
-    const res = await api.post<{ data: { pet: RawPet } }>("/owner/new-pet", formData);
-    return mapPet(res.data.data.pet);
+    const res = await api.post<{ status: string; data: { pet: RawPet } }>(
+      "/owner/new-pet",
+      formData
+    );
+
+    const rawPet = res.data?.data?.pet;
+    if (!rawPet) {
+      // The request succeeded (2xx) but the body didn't have the shape we expect.
+      // Don't call this a creation failure — surface it distinctly instead.
+      console.error("Unexpected createPet response shape:", res.data);
+      throw new Error("Pet may have been created, but the response was unexpected. Please refresh.");
+    }
+
+    return mapPet(rawPet);
   } catch (err: unknown) {
     let msg = "Failed to create pet";
-    if (err instanceof AxiosError) msg = err.response?.data?.message ?? msg;
+    if (err instanceof AxiosError) {
+      msg = err.response?.data?.message ?? msg;
+    } else if (err instanceof Error) {
+      msg = err.message;
+    }
     throw new Error(msg);
   }
 }

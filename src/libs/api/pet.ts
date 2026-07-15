@@ -70,7 +70,7 @@ export async function getPet(petId: string): Promise<GetPetResponse> {
 
 /**
  * Create a new pet for the authenticated user.
- * POST /api/v1/user/new-pet/
+ * POST /api/v1/owner/new-pet/
  * Accepts multipart/form-data so a photo file can be included.
  */
 export async function createPet(payload: {
@@ -96,7 +96,7 @@ export async function createPet(payload: {
 
     try {
         const { data } = await axios.post<CreatePetResponse>(
-            `${BASE_URL}/api/v1/user/new-pet/`,
+            `${BASE_URL}/api/v1/owner/new-pet/`,
             form,
             {
                 headers: {
