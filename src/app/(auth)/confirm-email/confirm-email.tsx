@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Loader2 } from "lucide-react";
 import { verifyEmailOTP, resendEmailOTP } from "@/libs/api/auth";
+import { toast } from "sonner";
 
 const OTP_LENGTH = 6;
 const RESEND_COOLDOWN = 60; // seconds
@@ -80,6 +81,7 @@ export default function ConfirmEmailComp() {
 
       if (isExpired) {
         setError("This code has expired. Please request a new one.");
+        toast.error("This code has expired. Please request a new one.");
         return;
       }
 
@@ -87,10 +89,12 @@ export default function ConfirmEmailComp() {
 
       if (otp.length !== OTP_LENGTH) {
         setError(`Please enter the full ${OTP_LENGTH}-digit code.`);
+        toast.error(`Please enter the full ${OTP_LENGTH}-digit code.`);
         return;
       }
       if (!email) {
         setError("Missing email. Please register again.");
+        toast.error("Missing email. Please register again.");
         return;
       }
 
@@ -101,9 +105,14 @@ export default function ConfirmEmailComp() {
       try {
         const res = await verifyEmailOTP({ email, otp });
         setSuccess(res.message || "Email verified successfully.");
+
+        toast.success("Email verified successfully.");
         setTimeout(() => router.push("/login"), 1200);
+
       } catch (err: unknown) {
         setError(err instanceof Error ? err.message : "Verification failed.");
+        toast.error("Verification failed.");
+
       } finally {
         setLoading(false);
       }
@@ -120,13 +129,17 @@ export default function ConfirmEmailComp() {
 
     try {
       const res = await resendEmailOTP({ email });
-      setSuccess(res.message || "A new OTP has been sent to your email.");
+      toast.success(res.message || "A new OTP has been sent to your email.");
       setCooldown(RESEND_COOLDOWN);
+
       setExpiresIn(OTP_VALIDITY);
       setDigits(Array(OTP_LENGTH).fill(""));
       inputsRef.current[0]?.focus();
+
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Failed to resend OTP.");
+      toast.error(err instanceof Error ? err.message : "Failed to resend OTP.");
+      
     } finally {
       setResending(false);
     }
