@@ -2,7 +2,6 @@
 
 'use client';
 
-import { useRef } from 'react';
 import {
     Calendar, ChevronLeft, ChevronRight, Clock, Info,
     Phone, Stethoscope, ArrowLeft, ChevronDown, Loader2
@@ -62,6 +61,8 @@ interface BookingPanelProps {
     selectedPetId: string;
     setSelectedPetId: (id: string) => void;
     pets: Pet[];
+    notes: string;
+    setNotes: (notes: string) => void;
     /** Called when the user taps the back arrow (mobile only) */
     onBack?: () => void;
     handleBook: () => Promise<void>;
@@ -82,6 +83,8 @@ export default function BookingPanel({
     selectedPetId,
     setSelectedPetId,
     pets,
+    notes,
+    setNotes,
     onBack,
     handleBook,
     bookingLoading,
@@ -219,7 +222,7 @@ export default function BookingPanel({
                                     // Get service name and price whether it's an object or string
                                     const serviceName = typeof service === 'string' ? service : service.name;
                                     const servicePrice = typeof service === 'object' && service.price ? service.price : null;
-                                    
+
                                     return (
                                         <span
                                             key={i}
@@ -465,7 +468,7 @@ export default function BookingPanel({
                         {/* Animals Handled Card */}
                         {selectedClinic.animalsHandled && selectedClinic.animalsHandled.length > 0 && (
                             <div className="flex items-center gap-2 lg:gap-3 bg-gray-50 rounded-xl lg:rounded-2xl p-3 lg:p-4 border border-gray-100 col-span-2 lg:col-span-1">
-                            
+
                                 <div className="min-w-0">
                                     <p className="text-[9px] lg:text-[10px] font-semibold text-blue-600 uppercase tracking-wide sec-ff">
                                         Animals Treated
@@ -481,6 +484,22 @@ export default function BookingPanel({
                             </div>
                         )}
                     </div>
+
+                    {/* ── Notes (optional) ── */}
+                    {selectedPetId && selectedDate && selectedTime && (
+                        <div>
+                            <label className="text-xs lg:text-sm font-bold text-(--sec-clr) sec-ff uppercase tracking-wide lg:normal-case lg:tracking-normal block mb-1.5">
+                                Reason <span className="text-gray-400 font-normal normal-case">(optional)</span>
+                            </label>
+                            <textarea
+                                value={notes}
+                                onChange={e => setNotes(e.target.value)}
+                                placeholder="Anything the vet should know before the visit..."
+                                rows={3}
+                                className="w-full bg-gray-50 border border-gray-200 rounded-xl lg:rounded-2xl p-3 text-sm text-(--sec-clr) placeholder:text-gray-400 pry-ff resize-none focus:outline-none focus:border-(--acc-clr) focus:bg-white transition-colors"
+                            />
+                        </div>
+                    )}
 
                     {/* ── Book CTA ── */}
                     {selectedPetId && selectedDate && selectedTime && (

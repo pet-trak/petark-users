@@ -40,6 +40,7 @@ export default function NearbyClinicsPage() {
     const [selectedPetId, setSelectedPetId] = useState('');
     const [selectedDate, setSelectedDate] = useState('');
     const [selectedTime, setSelectedTime] = useState('');
+    const [notes, setNotes] = useState('');
     const [bookingLoading, setBookingLoading] = useState(false);
 
     /* Calendar month – default to current month */
@@ -107,55 +108,61 @@ export default function NearbyClinicsPage() {
         setMobileView('booking');
     };
 
-const handleBook = async () => {
-    if (!selectedPetId || !selectedDate || !selectedTime) {
-        toast.error('Select pet, date and time');
-        return;
-    }
-    setBookingLoading(true);
-    try {
-        const query: BookAppointmentQuery = { clinicId: selectedClinic!._id };
-        const time12 = to12Hour(selectedTime);
-        await bookAppointments(
-            { petId: selectedPetId, date: selectedDate, time: time12 },
-            query
-        );
-        toast.success(`Appointment booked for ${time12}`);
-
-        // Fix: compute updatedSlots first, then derive isOpen from them
-        setSchedule(prev =>
-            prev.map(day => {
-                if (day.date !== selectedDate) return day;
-                const updatedSlots = day.slots.map(slot =>
-                    slot.time === selectedTime
-                        ? { ...slot, available: false }
-                        : slot
-                );
-                return {
-                    ...day,
-                    slots: updatedSlots,
-                    isOpen: updatedSlots.some(s => s.available), // ← uses updated slots
-                };
-            })
-        );
-
-        setSelectedTime('');
-        setSelectedDate('');
-    } catch (err: unknown) {
-        if (axios.isAxiosError(err)) {
-            toast.error(
-                err.response?.data?.message ??
-                (typeof err.response?.data === 'string'
-                    ? err.response.data
-                    : 'Failed to book appointment')
-            );
-        } else {
-            toast.error('Failed to book appointment');
+    const handleBook = async () => {
+        if (!selectedPetId || !selectedDate || !selectedTime) {
+            toast.error('Select pet, date and time');
+            return;
         }
-    } finally {
-        setBookingLoading(false);
-    }
-};
+        setBookingLoading(true);
+        try {
+            const query: BookAppointmentQuery = { clinicId: selectedClinic!._id };
+            const time12 = to12Hour(selectedTime);
+            await bookAppointments(
+                {
+                    petId: selectedPetId,
+                    date: selectedDate,
+                    time: time12,
+                    ...(notes.trim() ? { notes: notes.trim() } : {}),
+                },
+                query
+            );
+            toast.success(`Appointment booked for ${time12}`);
+
+            // Fix: compute updatedSlots first, then derive isOpen from them
+            setSchedule(prev =>
+                prev.map(day => {
+                    if (day.date !== selectedDate) return day;
+                    const updatedSlots = day.slots.map(slot =>
+                        slot.time === selectedTime
+                            ? { ...slot, available: false }
+                            : slot
+                    );
+                    return {
+                        ...day,
+                        slots: updatedSlots,
+                        isOpen: updatedSlots.some(s => s.available), // ← uses updated slots
+                    };
+                })
+            );
+
+            setSelectedTime('');
+            setSelectedDate('');
+            setNotes('');
+        } catch (err: unknown) {
+            if (axios.isAxiosError(err)) {
+                toast.error(
+                    err.response?.data?.message ??
+                    (typeof err.response?.data === 'string'
+                        ? err.response.data
+                        : 'Failed to book appointment')
+                );
+            } else {
+                toast.error('Failed to book appointment');
+            }
+        } finally {
+            setBookingLoading(false);
+        }
+    };
 
     /* ── render ── */
     return (
@@ -196,6 +203,8 @@ const handleBook = async () => {
                         selectedPetId={selectedPetId}
                         setSelectedPetId={setSelectedPetId}
                         pets={pets}
+                        notes={notes}
+                        setNotes={setNotes}
                         handleBook={handleBook}
                         bookingLoading={bookingLoading}
                         calendarMonth={calendarMonth}
@@ -228,6 +237,8 @@ const handleBook = async () => {
                         selectedPetId={selectedPetId}
                         setSelectedPetId={setSelectedPetId}
                         pets={pets}
+                        notes={notes}
+                        setNotes={setNotes}
                         onBack={() => setMobileView('list')}
                         handleBook={handleBook}
                         bookingLoading={bookingLoading}

@@ -7,7 +7,7 @@ import {
     bookAppointments,
     BookAppointmentQuery,
 } from '@/libs/api/appointment';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Spinner from './ui/spinner';
 import { toast } from 'sonner';
@@ -33,6 +33,7 @@ export default function BookAppointment({ clinicId, vetId }: Props) {
     const [selectedPetId, setSelectedPetId] = useState('');
     const [selectedDate, setSelectedDate] = useState('');
     const [selectedTime, setSelectedTime] = useState('');
+    const [notes, setNotes] = useState('');
     const [loading, setLoading] = useState(false);
 
     const dateRef = useRef<HTMLDivElement | null>(null);
@@ -56,8 +57,14 @@ export default function BookAppointment({ clinicId, vetId }: Props) {
                 setSchedule(sched);
                 const myPets = await getMyPets();
                 setPets(myPets);
-            } catch (err: any) {
-                toast.error(err.message || "Failed to load schedule");
+            } catch (err: unknown) {
+                const message =
+                    err instanceof AxiosError
+                        ? err.response?.data?.message ?? 'Failed to load schedule'
+                        : err instanceof Error
+                            ? err.message
+                            : 'Failed to load schedule';
+                toast.error(message);
             }
         }
         fetchData();
@@ -77,7 +84,12 @@ export default function BookAppointment({ clinicId, vetId }: Props) {
         try {
             const query: BookAppointmentQuery = { clinicId, vetId };
             await bookAppointments(
-                { petId: selectedPetId, date: selectedDate, time: selectedTime },
+                {
+                    petId: selectedPetId,
+                    date: selectedDate,
+                    time: selectedTime,
+                    ...(notes.trim() ? { notes: notes.trim() } : {}),
+                },
                 query
             );
 
@@ -99,7 +111,8 @@ export default function BookAppointment({ clinicId, vetId }: Props) {
 
             setSelectedTime('');
             setSelectedDate('');
-        } catch (err: any) {
+            setNotes('');
+        } catch (err: unknown) {
             if (axios.isAxiosError(err)) {
                 const message =
                     err.response?.data?.message ||
@@ -107,6 +120,8 @@ export default function BookAppointment({ clinicId, vetId }: Props) {
                         ? err.response.data
                         : 'Failed to book appointment');
                 toast.error(message);
+            } else if (err instanceof Error) {
+                toast.error(err.message);
             } else {
                 toast.error('Failed to book appointment');
             }
@@ -225,12 +240,28 @@ export default function BookAppointment({ clinicId, vetId }: Props) {
                             </div>
                         )}
 
+                        {/* NOTES (optional) */}
+                        {selectedPetId && selectedDate && selectedTime && (
+                            <div className="mt-4">
+                                <label className="block font-semibold mb-2">
+                                    Notes <span className="text-gray-400 font-normal">(optional)</span>
+                                </label>
+                                <textarea
+                                    value={notes}
+                                    onChange={e => setNotes(e.target.value)}
+                                    placeholder="Anything the vet should know before the visit..."
+                                    rows={3}
+                                    className="w-full border-2 border-[#38E07B]/30 p-3 sm:p-4 rounded-xl focus:outline-none focus:border-[#38E07B] resize-none"
+                                />
+                            </div>
+                        )}
+
                         {/* CONFIRM BUTTON */}
                         {selectedPetId && selectedDate && selectedTime && (
                             <button
                                 onClick={handleBook}
                                 disabled={loading}
-                                className="w-full bg-[#38E07B] text-white py-4 rounded-2xl font-bold hover:shadow-lg transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                                className="w-full mt-4 bg-[#38E07B] text-white py-4 rounded-2xl font-bold hover:shadow-lg transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                             >
                                 {loading ? <Spinner /> : `Confirm Booking - ${new Date(selectedDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}, ${selectedTime}`}
                             </button>
