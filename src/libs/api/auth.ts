@@ -1,4 +1,7 @@
+// src/libs/api/auth.ts
+
 import axios, { AxiosError } from "axios";
+import api from "./axiosInstance";
 
 interface LoginPayload {
   email: string;
@@ -108,4 +111,38 @@ export async function resendEmailOTP(payload: ResendOTPPayload): Promise<BasicRe
     if (error instanceof AxiosError) msg = error.response?.data?.message ?? msg;
     throw new Error(msg);
   }
+}
+
+// ========= CLAIMING ACCOUNT =========
+export interface ClaimPreview {
+    fullname: string;
+    email: string;
+    phoneNumber: string;
+}
+
+export async function getClaimPreview(token: string): Promise<ClaimPreview> {
+    try {
+        const response = await api.get(`/auth/owner/claim/${token}`);
+        return response.data.data;
+    } catch (error) {
+        if (error instanceof AxiosError) {
+            console.error("Error fetching claim preview:", error.response?.data || error.message);
+        } else {
+            console.error("Error fetching claim preview:", error);
+        }
+        throw error;
+    }
+}
+
+export async function claimAccount(token: string, password: string): Promise<void> {
+    try {
+        await api.post(`/auth/owner/claim/${token}`, { password });
+    } catch (error) {
+        if (error instanceof AxiosError) {
+            console.error("Error claiming account:", error.response?.data || error.message);
+        } else {
+            console.error("Error claiming account:", error);
+        }
+        throw error;
+    }
 }
