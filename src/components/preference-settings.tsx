@@ -16,7 +16,7 @@ const preferenceItems: PreferenceItem[] = [
         label: "Profile Settings",
         description: "Manage your personal information",
         icon: UserCircle2,
-        href: "/dashboard/settings/profile",
+        href: "/dashboard/profile",
         accent: true,
     },
     // {

@@ -68,10 +68,16 @@ function useOwnerProfile() {
 interface ProfileDropdownProps {
     ownerProfile: OwnerProfile;
     align?: 'left' | 'right';
+    direction?: 'up' | 'down';
     collapsed?: boolean;
 }
 
-function ProfileDropdown({ ownerProfile, align = 'right', collapsed = false }: ProfileDropdownProps) {
+function ProfileDropdown({
+    ownerProfile,
+    align = 'right',
+    direction = 'up',
+    collapsed = false,
+}: ProfileDropdownProps) {
     const { logout } = useAuthStore();
     const router = useRouter();
     const [open, setOpen] = useState(false);
@@ -105,43 +111,42 @@ function ProfileDropdown({ ownerProfile, align = 'right', collapsed = false }: P
                 `}
             >
                 {/* Pet avatars / fallback */}
- {/* Pet avatars / fallback */}
-<div className="flex items-center shrink-0">
-    {petCount === 0 && (
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#38E07B] to-[#2bc466] flex items-center justify-center border-2 border-white shadow-sm">
-            <User className="w-4 h-4 text-white" />
-        </div>
-    )}
+                <div className="flex items-center shrink-0">
+                    {petCount === 0 && (
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#38E07B] to-[#2bc466] flex items-center justify-center border-2 border-white shadow-sm">
+                            <User className="w-4 h-4 text-white" />
+                        </div>
+                    )}
 
-    {petCount === 1 && (
-        <div className="w-8 h-8 rounded-full border-2 border-white shadow-sm overflow-hidden">
-            <Image
-                src={ownerProfile.pets![0].photo ?? '/default-pet.png'}
-                alt={ownerProfile.pets![0].name ?? 'Pet'}
-                width={32}
-                height={32}
-                className="w-full h-full object-cover"
-            />
-        </div>
-    )}
+                    {petCount === 1 && (
+                        <div className="w-8 h-8 rounded-full border-2 border-white shadow-sm overflow-hidden">
+                            <Image
+                                src={ownerProfile.pets![0].photo ?? '/default-pet.png'}
+                                alt={ownerProfile.pets![0].name ?? 'Pet'}
+                                width={32}
+                                height={32}
+                                className="w-full h-full object-cover"
+                            />
+                        </div>
+                    )}
 
-    {petCount > 1 && (
-        <div className="flex items-center gap-1.5">
-            <div className="w-8 h-8 rounded-full border-2 border-white shadow-sm overflow-hidden">
-                <Image
-                    src={ownerProfile.pets![0].photo ?? '/default-pet.png'}
-                    alt={ownerProfile.pets![0].name ?? 'Pet'}
-                    width={32}
-                    height={32}
-                    className="w-full h-full object-cover"
-                />
-            </div>
-            <span className="text-xs font-semibold text-gray-500">
-                +{petCount - 1}
-            </span>
-        </div>
-    )}
-</div>
+                    {petCount > 1 && (
+                        <div className="flex items-center gap-1.5">
+                            <div className="w-8 h-8 rounded-full border-2 border-white shadow-sm overflow-hidden">
+                                <Image
+                                    src={ownerProfile.pets![0].photo ?? '/default-pet.png'}
+                                    alt={ownerProfile.pets![0].name ?? 'Pet'}
+                                    width={32}
+                                    height={32}
+                                    className="w-full h-full object-cover"
+                                />
+                            </div>
+                            <span className="text-xs font-semibold text-gray-500">
+                                +{petCount - 1}
+                            </span>
+                        </div>
+                    )}
+                </div>
 
                 {!collapsed && (
                     <>
@@ -163,8 +168,9 @@ function ProfileDropdown({ ownerProfile, align = 'right', collapsed = false }: P
             {open && (
                 <div
                     className={`
-                        absolute bottom-full mb-2 w-52 bg-white border border-gray-100
+                        absolute w-52 bg-white border border-gray-100
                         rounded-2xl shadow-lg shadow-black/10 overflow-hidden z-50 sec-ff
+                        ${direction === 'up' ? 'bottom-full mb-2' : 'top-full mt-2'}
                         ${align === 'right' ? 'right-0' : 'left-0'}
                     `}
                 >
@@ -284,6 +290,7 @@ export default function Sidebar() {
                         <ProfileDropdown
                             ownerProfile={ownerProfile}
                             align="left"
+                            direction="up"
                             collapsed={collapsed}
                         />
                     )}
@@ -349,6 +356,7 @@ export default function Sidebar() {
                         <ProfileDropdown
                             ownerProfile={ownerProfile}
                             align="right"
+                            direction="down"
                             collapsed={false}
                         />
                     )}
